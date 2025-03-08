@@ -6,29 +6,29 @@ namespace FoodDelivery.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        public CategoryController(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        public CategoryController(IUnitOfWork unitOfWork) 
+            => _unitOfWork = unitOfWork;
 
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(new { data = _unitOfWork.Category.GetAll() });
+            return Json(new { data = _unitOfWork.Category.List() });
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var obj = _unitOfWork.Category.Get(c=>c.Id == id);
-            if (obj == null)
+            var objFromDb = _unitOfWork.Category.Get(c => c.Id == id);
+            if (objFromDb == null)
             {
-                return Ok(new { success = "false", message = "Error While Deleting Record" });
+                return Json(new { success = false, message = "Error while deleting" });
             }
-            _unitOfWork.Category.Delete(obj);
+            _unitOfWork.Category.Delete(objFromDb);
             _unitOfWork.Commit();
-            return Ok(new { success = "true", message = "Deleted Successfully" });
+            return Json(new { success = true, message = "Delete Successful" });
         }
     }
 }

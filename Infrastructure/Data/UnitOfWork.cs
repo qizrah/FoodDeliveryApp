@@ -1,32 +1,60 @@
-﻿using System;
+﻿using ApplicationCore.Interfaces;
+using ApplicationCore.Models;
+using Infrastructure.Data.Migrations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ApplicationCore.Interfaces;
-using ApplicationCore.Models;
 
 namespace Infrastructure.Data
 {
-    public class UnitOfWork : IUnitOfWork, IDisposable
+    public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _dbContext;
-        private IGenericRepository<Category>? _categoryRepository;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         public UnitOfWork(ApplicationDbContext dbContext)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         {
             _dbContext = dbContext;
         }
 
+        private IGenericRepository<Category> _Category;
+        private IGenericRepository<FoodType> _FoodType;
+        private IGenericRepository<MenuItem> _MenuItem;
+
         public IGenericRepository<Category> Category
+        {
+            get {
+                if (_Category == null)
+                {
+                    _Category = new GenericRepository<Category>(_dbContext);
+                }
+                return _Category;
+            }
+        }
+
+        public IGenericRepository<FoodType> FoodType
         {
             get
             {
-                if (_categoryRepository == null)
+                if (_FoodType == null)
                 {
-                    _categoryRepository = new GenericRepository<Category>(_dbContext);
+                    _FoodType = new GenericRepository<FoodType>(_dbContext);
                 }
-                return _categoryRepository;
+                return _FoodType;
+            }
+        }
+        public IGenericRepository<MenuItem> MenuItem
+        {
+            get
+            {
+                if (_MenuItem == null)
+                {
+                    _MenuItem = new GenericRepository<MenuItem>(_dbContext);
+                }
+                return _MenuItem;
             }
         }
 

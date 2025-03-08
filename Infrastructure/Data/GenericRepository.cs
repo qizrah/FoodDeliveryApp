@@ -1,132 +1,238 @@
-﻿using System;
+﻿using ApplicationCore.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using ApplicationCore.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         private readonly ApplicationDbContext _dbContext;
-        private readonly DbSet<T> _dbSet;
 
         public GenericRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
-            _dbSet = dbContext.Set<T>();
         }
 
         public void Add(T entity)
         {
-            _dbSet.Add(entity);
+            _dbContext.Set<T>().Add(entity);
+            _dbContext.SaveChanges();
         }
 
         public void Delete(T entity)
         {
-            _dbSet.Remove(entity);
+            _dbContext.Set<T>().Remove(entity);
+            _dbContext.SaveChanges();
         }
 
         public void Delete(IEnumerable<T> entities)
         {
-            _dbSet.RemoveRange(entities);
+            _dbContext.Set<T>().RemoveRange(entities);
+            _dbContext.SaveChanges();
         }
 
-        public T Get(Expression<Func<T, bool>> predicate, bool trackChanges = false, string? includes = null)
+        public virtual T Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate, bool asNoTracking = false, string? includes = null)
         {
-            IQueryable<T> query = _dbSet;
-            if (!trackChanges)
+            if (includes == null)
             {
-                query = query.AsNoTracking();
-            }
-            if (!string.IsNullOrEmpty(includes))
-            {
-                foreach (var includeProperty in includes.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                if (asNoTracking) //read only copy for display purposes
                 {
-                    query = query.Include(includeProperty);
+#pragma warning disable CS8603 // Possible null reference return.
+                    return _dbContext.Set<T>()
+                        .AsNoTracking()
+                        .Where(predicate)
+                        .FirstOrDefault();
+#pragma warning restore CS8603 // Possible null reference return.
+                }
+                else //it needs to be tracked
+                {
+#pragma warning disable CS8603 // Possible null reference return.
+                    return _dbContext.Set<T>()
+                        .Where(predicate)
+                        .FirstOrDefault();
+#pragma warning restore CS8603 // Possible null reference return.
                 }
             }
-            return query.FirstOrDefault(predicate);
-        }
-
-        public async Task<T> GetAsync(Expression<Func<T, bool>> predicate, bool trackChanges = false, string? includes = null)
-        {
-            IQueryable<T> query = _dbSet;
-            if (!trackChanges)
+            else //this as includes (other objects or tables)
             {
-                query = query.AsNoTracking();
-            }
-            if (!string.IsNullOrEmpty(includes))
-            {
-                foreach (var includeProperty in includes.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                IQueryable<T> queryable = _dbContext.Set<T>();
+                foreach (var includeProperty in includes.Split(new char[]
+                    {','}, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    query = query.Include(includeProperty);
+                    queryable = queryable.Include(includeProperty);
+                }
+                if (asNoTracking)
+                {
+#pragma warning disable CS8603 // Possible null reference return.
+                    return queryable
+                        .AsNoTracking()
+                        .Where(predicate)
+                        .FirstOrDefault();
+#pragma warning restore CS8603 // Possible null reference return.
+                }
+                else
+                {
+#pragma warning disable CS8603 // Possible null reference return.
+                    return queryable
+                        .Where(predicate)
+                        .FirstOrDefault();
+#pragma warning restore CS8603 // Possible null reference return.
                 }
             }
-            return await query.FirstOrDefaultAsync(predicate);
-        }
+        }   
 
-        public T GetById(int? id)
+        public virtual async Task<T> GetAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate, bool asNoTracking = false, string? includes = null)
         {
-            return _dbSet.Find(id);
-        }
-
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null, Expression<Func<T, int>>? orderBy = null, string? includes = null)
-        {
-            IQueryable<T> query = _dbSet;
-
-            if (!string.IsNullOrEmpty(includes))
+            if (includes == null)
             {
-                foreach (var includeProperty in includes.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                if (asNoTracking) //read only copy for display purposes
                 {
-                    query = query.Include(includeProperty);
+#pragma warning disable CS8603 // Possible null reference return.
+                    return await _dbContext.Set<T>()
+                        .AsNoTracking()
+                        .Where(predicate)
+                        .FirstOrDefaultAsync();
+#pragma warning restore CS8603 // Possible null reference return.
+                }
+                else //it needs to be tracked
+                {
+#pragma warning disable CS8603 // Possible null reference return.
+                    return await _dbContext.Set<T>()
+                        .Where(predicate)
+                        .FirstOrDefaultAsync();
+#pragma warning restore CS8603 // Possible null reference return.
                 }
             }
-
-            if (predicate != null)
+            else //this as includes (other objects or tables)
             {
-                query = query.Where(predicate);
-            }
-
-            if (orderBy != null)
-            {
-                query = query.OrderBy(orderBy);
-            }
-
-            return await query.ToListAsync();
-        }
-
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? predicate = null, Expression<Func<T, int>>? orderBy = null, string? includes = null)
-        {
-            IQueryable<T> query = _dbSet;
-
-            if (!string.IsNullOrEmpty(includes))
-            {
-                foreach (var includeProperty in includes.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                IQueryable<T> queryable = _dbContext.Set<T>();
+                foreach (var includeProperty in includes.Split(new char[]
+                    {','}, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    query = query.Include(includeProperty);
+                    queryable = queryable.Include(includeProperty);
+                }
+                if (asNoTracking)
+                {
+#pragma warning disable CS8603 // Possible null reference return.
+                    return await queryable
+                        .AsNoTracking()
+                        .Where(predicate)
+                        .FirstOrDefaultAsync();
+#pragma warning restore CS8603 // Possible null reference return.
+                }
+                else
+                {
+#pragma warning disable CS8603 // Possible null reference return.
+                    return await queryable
+                        .Where(predicate)
+                        .FirstOrDefaultAsync();
+#pragma warning restore CS8603 // Possible null reference return.
                 }
             }
+        }
 
-            if (predicate != null)
+        public virtual T GetById(int id)
+        {
+#pragma warning disable CS8603 // Possible null reference return.
+            return _dbContext.Set<T>().Find(id);
+#pragma warning restore CS8603 // Possible null reference return.
+        }
+
+        public virtual IEnumerable<T> List()
+        {
+            return _dbContext.Set<T>().ToList().AsEnumerable();
+        }
+
+        public virtual IEnumerable<T> List(System.Linq.Expressions.Expression<Func<T, bool>> predicate, System.Linq.Expressions.Expression<Func<T, int>>? orderBy = null, string? includes = null)
+        {
+            IQueryable<T> queryable = _dbContext.Set<T>();
+            if (predicate != null && includes == null) //does have a where, but does not include others
             {
-                query = query.Where(predicate);
+                return _dbContext.Set<T>()
+                    .Where(predicate)
+                    .AsEnumerable();
             }
-
-            if (orderBy != null)
+            else if (includes != null) // are included joins
             {
-                query = query.OrderBy(orderBy);
+                foreach (var includeProperty in includes.Split(new char[]
+                    {','}, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    queryable = queryable.Include(includeProperty);
+                }
             }
+            if (predicate == null)
+            {
+                if (orderBy == null)
+                {
+                    return queryable.AsEnumerable();
+                }
+                else
+                {
+                    return queryable.OrderBy(orderBy).ToList().AsEnumerable();
+                }
+            }
+            else
+            {
+                if (orderBy == null)
+                {
+                    return queryable.Where(predicate).ToList().AsEnumerable();
+                }
+                else
+                {
+                    return queryable.Where(predicate).OrderBy(orderBy).ToList().AsEnumerable();
+                }
+            }
+        }
 
-            return query.ToList();
+        public virtual async Task<IEnumerable<T>> ListAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate, System.Linq.Expressions.Expression<Func<T, int>>? orderBy = null, string? includes = null)
+        {
+            IQueryable<T> queryable = _dbContext.Set<T>();
+            if (predicate != null && includes == null) //does have a where, but does not include others
+            {
+                return await _dbContext.Set<T>()
+                    .Where(predicate)
+                    .ToListAsync();
+            }
+            else if (includes != null) // are included joins
+            {
+                foreach (var includeProperty in includes.Split(new char[]
+                    {','}, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    queryable = queryable.Include(includeProperty);
+                }
+            }
+            if (predicate == null)
+            {
+                if (orderBy == null)
+                {
+                    return await queryable.ToListAsync();
+                }
+                else
+                {
+                    return await queryable.OrderBy(orderBy).ToListAsync();
+                }
+            }
+            else
+            {
+                if (orderBy == null)
+                {
+                    return await queryable.Where(predicate).ToListAsync();
+                }
+                else
+                {
+                    return await queryable.Where(predicate).OrderBy(orderBy).ToListAsync();
+                }
+            }
         }
 
         public void Update(T entity)
         {
-            _dbSet.Update(entity);
+            _dbContext.Entry(entity).State = EntityState.Modified;
+            _dbContext.SaveChanges();
         }
     }
 }

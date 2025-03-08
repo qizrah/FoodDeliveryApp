@@ -11,10 +11,11 @@ namespace ApplicationCore.Models
     {
         [Key]
         public int Id { get; set; }
-
         [Required]
-        public string Name { get; set; }
-
-        public int SortOrder { get; set; } // New SortOrder property
+        [Display(Name = "Category Name")]
+        public string? Name { get; set; }
+        [Display(Name = "Display Order")]
+        [Range(1,100,ErrorMessage ="You must enter 1 to 100!")]
+        public int DisplayOrder { get; set; }
     }
 }

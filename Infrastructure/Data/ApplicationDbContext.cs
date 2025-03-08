@@ -10,10 +10,9 @@ namespace Infrastructure.Data
             : base(options)
         {
         }
+
         public DbSet<Category> Category { get; set; }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-        }
+        public DbSet<FoodType> FoodType { get; set; }
+        public DbSet<MenuItem> MenuItem { get; set; }
     }
 }
