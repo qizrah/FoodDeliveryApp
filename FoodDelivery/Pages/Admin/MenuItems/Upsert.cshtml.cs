@@ -46,10 +46,10 @@ namespace FoodDelivery.Pages.Admin.MenuItems
 
         public IActionResult OnPost(int? id)
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return Page();
+            //}
             try
             {
                 string webRootPath = _webHostEnvironment.WebRootPath;
