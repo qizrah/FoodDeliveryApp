@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
 using ApplicationCore.ViewModels;
 using Infrastructure.Data;
@@ -10,9 +11,9 @@ namespace FoodDelivery.Pages.Customer.Cart
 {
     public class IndexModel : PageModel
     {
-        private readonly UnitOfWork unitOfWork;
+        private readonly IUnitOfWork unitOfWork;
 
-        public IndexModel(UnitOfWork _unitofwork)
+        public IndexModel(IUnitOfWork _unitofwork)
         {
             unitOfWork = _unitofwork;
         }
@@ -38,7 +39,7 @@ namespace FoodDelivery.Pages.Customer.Cart
 
                 foreach (var cartList in OrderDetailsCart.ListCart)
                 {
-                    cartList.MenuItem = unitOfWork.MenuItem.GetById(cartList.MenuItemId);
+                    cartList.MenuItem = unitOfWork.MenuItem.Get(m => m.Id == cartList.MenuItemId, includes: "Category,FoodType");
                     OrderDetailsCart.OrderHeader.OrderTotal += (cartList.MenuItem.price * cartList.Count);
                 }
             }

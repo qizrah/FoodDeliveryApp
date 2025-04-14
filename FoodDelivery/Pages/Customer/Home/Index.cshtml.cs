@@ -1,3 +1,4 @@
+using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -7,9 +8,9 @@ namespace FoodDelivery.Pages.Customer.Home
 {
     public class IndexModel : PageModel
     {
-        private readonly UnitOfWork unitOfWork;
+        private readonly IUnitOfWork unitOfWork;
 
-        public IndexModel(UnitOfWork _unitofwork)
+        public IndexModel(IUnitOfWork _unitofwork)
         {
             unitOfWork = _unitofwork;
         }
@@ -19,7 +20,8 @@ namespace FoodDelivery.Pages.Customer.Home
 
         public void OnGet()
         {
-            MenuItemList = (List<MenuItem>)unitOfWork.MenuItem.List();
+            MenuItemList = (List<MenuItem>)unitOfWork.MenuItem.List(predicate: null, includes: "Category,FoodType")
+        .ToList();
             CategoryList = (List<Category>)unitOfWork.Category.List();
 
         }

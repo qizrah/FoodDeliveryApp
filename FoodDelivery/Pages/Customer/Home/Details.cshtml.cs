@@ -1,6 +1,8 @@
 using System.Security.Claims;
+using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
 using Infrastructure.Data;
+using Infrastructure.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,12 +10,12 @@ namespace FoodDelivery.Pages.Customer.Home
 {
     public class DetailsModel : PageModel
     {
-        private readonly UnitOfWork unitOfWork;
+        private readonly IUnitOfWork unitOfWork;
         [BindProperty]
         public int txtCount { get; set; } = 1;
         public MenuItem objMenuItem { get; set; }
         public ShoppingCart objCart { get; set; }
-        public DetailsModel(UnitOfWork _unitofwork)
+        public DetailsModel(IUnitOfWork _unitofwork)
         {
             unitOfWork = _unitofwork;
         }
@@ -25,7 +27,7 @@ namespace FoodDelivery.Pages.Customer.Home
                 var ClaimsIdentity = User.Identity as ClaimsIdentity;
                 var claim = ClaimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
                 HttpContext.Session.SetString("UserLoggedIn", claim?.Value ?? string.Empty);
-                objMenuItem = unitOfWork.MenuItem.GetById((int)id);
+                objMenuItem = unitOfWork.MenuItem.Get(m => m.Id == id, includes: "Category,FoodType");
                 return Page();
             }
             else
@@ -50,13 +52,16 @@ namespace FoodDelivery.Pages.Customer.Home
                 };
 
                 unitOfWork.ShoppingCart.Add(newCart);
+
+                HttpContext.Session.SetInt32(SD.ShoppingCart, txtCount);
             }
             else
             {
                 existingCart.Count += txtCount;
                 unitOfWork.ShoppingCart.Update(existingCart);
-            }
 
+                HttpContext.Session.SetInt32(SD.ShoppingCart, existingCart.Count);
+            }
             unitOfWork.CommitAsync();
             return RedirectToPage("Index");
         }

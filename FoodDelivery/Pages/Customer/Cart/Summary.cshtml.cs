@@ -6,13 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Infrastructure.Utilities;
 using Stripe;
+using ApplicationCore.Interfaces;
 
 namespace FoodDelivery.Pages.Customer.Cart
 {
     public class SummaryModel : PageModel
     {
-        private readonly UnitOfWork unitOfWork;
-        public SummaryModel(UnitOfWork _unitofwork)
+        private readonly IUnitOfWork unitOfWork;
+        public SummaryModel(IUnitOfWork _unitofwork)
         {
             unitOfWork = _unitofwork;
         }
@@ -57,7 +58,7 @@ namespace FoodDelivery.Pages.Customer.Cart
             var claim = ClaimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
             if (claim != null)
             {
-                OrderDetailsCart.ListCart = unitOfWork.ShoppingCart.List(x=>x.ApplicationUserId == claim.Value);
+                OrderDetailsCart.ListCart = unitOfWork.ShoppingCart.List(x=>x.ApplicationUserId == claim.Value).ToList();
                 OrderDetailsCart.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
                 OrderDetailsCart.OrderHeader.DeliveryDate = DateTime.Now;
                 OrderDetailsCart.OrderHeader.ApplicationUserId = claim.Value;
@@ -70,7 +71,7 @@ namespace FoodDelivery.Pages.Customer.Cart
 
                 foreach (var item in OrderDetailsCart.ListCart)
                 {
-                    item.MenuItem = unitOfWork.MenuItem.GetById(item.MenuItemId);
+                    item.MenuItem = unitOfWork.MenuItem.Get(x => x.Id == item.MenuItemId, includes: "Category,FoodType");
                     OrderDetails orderDetails = new OrderDetails
                     {
                         MenuItemId = item.MenuItemId,
