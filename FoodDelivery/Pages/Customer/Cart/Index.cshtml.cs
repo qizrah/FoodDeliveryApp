@@ -39,7 +39,7 @@ namespace FoodDelivery.Pages.Customer.Cart
 
                 foreach (var cartList in OrderDetailsCart.ListCart)
                 {
-                    cartList.MenuItem = unitOfWork.MenuItem.Get(m => m.Id == cartList.MenuItemId, includes: "Category,FoodType");
+                    cartList.MenuItem = unitOfWork.MenuItem.Get(m => m.Id == cartList.MenuItemId, includes: "Category,MenuItemFoodTypes.FoodType");
                     OrderDetailsCart.OrderHeader.OrderTotal += (cartList.MenuItem.price * cartList.Count);
                 }
             }

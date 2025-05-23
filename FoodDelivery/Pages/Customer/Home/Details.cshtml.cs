@@ -27,7 +27,7 @@ namespace FoodDelivery.Pages.Customer.Home
                 var ClaimsIdentity = User.Identity as ClaimsIdentity;
                 var claim = ClaimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
                 HttpContext.Session.SetString("UserLoggedIn", claim?.Value ?? string.Empty);
-                objMenuItem = unitOfWork.MenuItem.Get(m => m.Id == id, includes: "Category,FoodType");
+                objMenuItem = unitOfWork.MenuItem.Get(m => m.Id == id, includes: "Category,MenuItemFoodTypes.FoodType");
                 return Page();
             }
             else

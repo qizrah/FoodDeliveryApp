@@ -71,7 +71,7 @@ namespace FoodDelivery.Pages.Customer.Cart
 
                 foreach (var item in OrderDetailsCart.ListCart)
                 {
-                    item.MenuItem = unitOfWork.MenuItem.Get(x => x.Id == item.MenuItemId, includes: "Category,FoodType");
+                    item.MenuItem = unitOfWork.MenuItem.Get(x => x.Id == item.MenuItemId, includes: "Category,MenuItemFoodTypes.FoodType");
                     OrderDetails orderDetails = new OrderDetails
                     {
                         MenuItemId = item.MenuItemId,

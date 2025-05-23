@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250522110124_AddMenuItemFoodTypeRelation")]
+    partial class AddMenuItemFoodTypeRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,30 +93,9 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("MenuItem");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.MenuItemFoodType", b =>
-                {
-                    b.Property<int>("mfid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("mfid"));
-
-                    b.Property<int>("FoodTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MenuItemId")
-                        .HasColumnType("int");
-
-                    b.HasKey("mfid");
-
                     b.HasIndex("FoodTypeId");
 
-                    b.HasIndex("MenuItemId");
-
-                    b.ToTable("MenuItemFoodTypes");
+                    b.ToTable("MenuItem");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.OrderDetails", b =>
@@ -461,26 +443,15 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.MenuItemFoodType", b =>
-                {
                     b.HasOne("ApplicationCore.Models.FoodType", "FoodType")
                         .WithMany()
                         .HasForeignKey("FoodTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApplicationCore.Models.MenuItem", "MenuItem")
-                        .WithMany("MenuItemFoodTypes")
-                        .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Category");
 
                     b.Navigation("FoodType");
-
-                    b.Navigation("MenuItem");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.OrderDetails", b =>
@@ -573,11 +544,6 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.MenuItem", b =>
-                {
-                    b.Navigation("MenuItemFoodTypes");
                 });
 #pragma warning restore 612, 618
         }

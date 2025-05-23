@@ -63,14 +63,16 @@
                 </div>
                 <div class="form-group row">
                     <div class="col-3">
-                        <label asp-for="MenuItem.FoodTypeId"></label>
+                        <label>Food Types</label>
                     </div>
                     <div class="col-9">
-                        @Html.DropDownListFor(m => m.MenuItem.FoodTypeId,
-                                 Model.FoodTypeList,
-                                 " - Please select a food type - ",
-                                 new { @class = "form-control", @id = "ddlFoodType" })
-                        <span class="text-danger" asp-validation-for="MenuItem.FoodTypeId"></span>
+                        <select asp-for="SelectedFoodTypeIds"
+                                asp-items="Model.FoodTypeList"
+                                class="form-control"
+                                multiple
+                                id="ddlFoodTypes">
+                        </select>
+                        <span class="text-danger" asp-validation-for="SelectedFoodTypeIds"></span>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -149,10 +151,11 @@
             }
 
             // Validate Food Type selection
-            if ($('#ddlFoodType option:selected').val() == 0) {
-                swal("Validation Error", "Please select a food type.", "error");
-                return false;
-            }
+                   if ($('#ddlFoodTypes option:selected').length === 0) {
+                        swal("Validation Error", "Please select at least one food type.", "error");
+                        return false;
+                    }
+
 
             return true;
         }

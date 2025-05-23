@@ -14,6 +14,9 @@ namespace FoodDelivery.Pages.Admin.MenuItems
         [BindProperty]
         public MenuItem MenuItem { get; set; }
 
+        [BindProperty]
+        public List<int> SelectedFoodTypeIds { get; set; } = new();
+
         public IEnumerable<SelectListItem> CategoryList { get; set; }
         public IEnumerable<SelectListItem> FoodTypeList { get; set; }
 
@@ -27,16 +30,33 @@ namespace FoodDelivery.Pages.Admin.MenuItems
         {
             MenuItem = new MenuItem();
 
-            if (id != null) // edit
+            var foodtypes = _unitOfWork.FoodType.List();
+            var categories = _unitOfWork.Category.List();
+            FoodTypeList = foodtypes.Select(x => new SelectListItem
             {
-                MenuItem = _unitOfWork.MenuItem.Get(u => u.Id == id,true);
-                var categories = _unitOfWork.Category.List();
-                var foodtypes = _unitOfWork.FoodType.List();
+                Value = x.Id.ToString(),
+                Text = x.Name
+            });
 
+            if (id != null)
+            {
+                SelectedFoodTypeIds = _unitOfWork.MenuItemFoodType
+                    .List(mft => mft.MenuItemId == id)
+                    .Select(mft => mft.FoodTypeId)
+                    .ToList();
                 CategoryList = categories.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name });
                 FoodTypeList = foodtypes.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name });
-                
             }
+            //if (id != null) // edit
+            //{
+            //    MenuItem = _unitOfWork.MenuItem.Get(u => u.Id == id, true);
+            //    var categories = _unitOfWork.Category.List();
+            //    var foodtypes = _unitOfWork.FoodType.List();
+
+            //    CategoryList = categories.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name });
+            //    FoodTypeList = foodtypes.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name });
+
+            //}
 
             if (MenuItem == null)
             {
@@ -100,6 +120,24 @@ namespace FoodDelivery.Pages.Admin.MenuItems
                     _unitOfWork.MenuItem.Update(MenuItem);
                 }
 
+                _unitOfWork.Commit();
+
+                // Clear existing M:M relationships
+                var existingRelations = _unitOfWork.MenuItemFoodType.List(x => x.MenuItemId == MenuItem.Id);
+                foreach (var relation in existingRelations)
+                {
+                    _unitOfWork.MenuItemFoodType.Delete(relation);
+                }
+
+                // Add new M:M relationships
+                foreach (var foodTypeId in SelectedFoodTypeIds)
+                {
+                    _unitOfWork.MenuItemFoodType.Add(new MenuItemFoodType
+                    {
+                        MenuItemId = MenuItem.Id,
+                        FoodTypeId = foodTypeId
+                    });
+                }
                 _unitOfWork.Commit();
             }
             catch (Exception ex)

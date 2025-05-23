@@ -20,7 +20,7 @@ namespace FoodDelivery.Pages.Customer.Home
 
         public void OnGet()
         {
-            MenuItemList = (List<MenuItem>)unitOfWork.MenuItem.List(predicate: null, includes: "Category,FoodType")
+            MenuItemList = (List<MenuItem>)unitOfWork.MenuItem.List(predicate: null, includes: "Category,MenuItemFoodTypes.FoodType")
         .ToList();
             CategoryList = (List<Category>)unitOfWork.Category.List();
 

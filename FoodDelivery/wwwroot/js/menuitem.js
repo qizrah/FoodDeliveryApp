@@ -14,16 +14,25 @@ function loadList() {
         "columns": [
             { data: "name", width: "40%" },
             { data: "price", render: $.fn.dataTable.render.number(',', '.', 2, "$"), width: "15%" },
-            { data: "category.name", width: "15%" },
-            { data: "foodType.name", width: "15%" },
+            { data: "categoryName", width: "15%" },
+            {
+                data: "foodTypeNames", width: "20%",
+                render: function (data, type, row) {
+                    return Array.isArray(data) ? data.join(", ") : "";
+                }
+            },
             {
                 data: "id", width: "30%",
                 "render": function (data) {
                     return `<div class="text-center">
                             <a href="/Admin/MenuItems/Upsert?id=${data}"
                             class ="btn btn-success text-white style="cursor:pointer; width=100px;"> <i class="far fa-edit"></i>Edit</a>
+                           
                             <a onClick=Delete('/api/menuitem/'+${data})
                             class ="btn btn-danger text-white style="cursor:pointer; width=100px;"> <i class="far fa-trash-alt"></i>Delete</a>
+                            <br>
+                             <a href="/Admin/MenuItems/ManageFoodTypes?id=${data}" 
+                             class="btn btn-warning style="cursor:pointer;"><i class="far fa-hamburger"></i>Manage Food Types</a>
                     </div>`;
                 }
             }

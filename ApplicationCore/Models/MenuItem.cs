@@ -34,7 +34,11 @@ namespace ApplicationCore.Models
         //Virtual objects
         [ForeignKey("CategoryId")]
         public virtual Category Category { get; set; }
-        [ForeignKey("FoodTypeId")]
-        public virtual FoodType FoodType { get; set; }
+        //[ForeignKey("FoodTypeId")]
+        //public virtual FoodType FoodType { get; set; }
+
+        [NotMapped]
+
+        public virtual ICollection<MenuItemFoodType> MenuItemFoodTypes { get; set; } = new List<MenuItemFoodType>();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.Interfaces;
+using ApplicationCore.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +16,20 @@ namespace FoodDelivery.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Json(new { data = _unitOfWork.MenuItem.List(null,null,"Category,FoodType") });
+            var menuItems = _unitOfWork.MenuItem
+        .List(null, null, "Category,MenuItemFoodTypes.FoodType")
+        .Select(m => new MenuItemDto
+        {
+            Id = m.Id,
+            Name = m.Name,
+            Price = m.price,
+            CategoryName = m.Category.Name,
+            FoodTypeNames = m.MenuItemFoodTypes
+                .Select(mt => mt.FoodType.Name)
+                .ToList()
+        });
+
+            return Json(new { data = menuItems });
         }
 
         [HttpDelete("{id}")]
