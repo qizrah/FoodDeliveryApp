@@ -1,0 +1,39 @@
+﻿@page
+@model FoodDelivery.Pages.Admin.Coupons.UpsertModel
+@{
+}
+
+<h2 class="text-primary">@(Model.Coupon.Id == 0 ? "Create" : "Edit") Coupon</h2>
+
+<form method="post">
+    <div class="form-group">
+        <input asp-for="Coupon.Id" hidden/>
+        <label asp-for="Coupon.Code"></label>
+        <input asp-for="Coupon.Code" class="form-control" />
+        <span asp-validation-for="Coupon.Code" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Coupon.DiscountAmount"></label>
+        <input asp-for="Coupon.DiscountAmount" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Coupon.MinimumOrderAmount"></label>
+        <input asp-for="Coupon.MinimumOrderAmount" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Coupon.MaxUses"></label>
+        <input asp-for="Coupon.MaxUses" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Coupon.ExpirationDate"></label>
+        <input asp-for="Coupon.ExpirationDate" type="date" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Coupon.ValidDayOfWeek"></label>
+        <select asp-for="Coupon.ValidDayOfWeek" class="form-control" asp-items="Html.GetEnumSelectList<DayOfWeek>()">
+            <option value="">-- Any Day --</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>

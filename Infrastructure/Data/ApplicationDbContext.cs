@@ -20,6 +20,7 @@ namespace Infrastructure.Data
         public DbSet<OrderHeader> OrderHeaders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<ShoppingCart> ShoppingCart { get; set; }
+        public DbSet<Coupon> Coupon { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

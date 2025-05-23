@@ -53,6 +53,11 @@ namespace ApplicationCore.Models
         [ForeignKey(nameof(ApplicationUserId))]
         [JsonIgnore]
         public virtual ApplicationUser ApplicationUser { get; set; }
+
+        [NotMapped]
+        public string? CouponCode { get; set; }
+        [NotMapped]
+        public double DiscountAmount { get; set; } = 0;
     }
 
 }

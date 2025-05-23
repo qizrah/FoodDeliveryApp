@@ -27,6 +27,7 @@ namespace Infrastructure.Data
         private IGenericRepository<OrderDetails> _OrderDetails;
         private IGenericRepository<ShoppingCart> _ShoppingCart;
         private IGenericRepository<MenuItemFoodType> _MenuItemFoodType;
+        private IGenericRepository<Coupon> _Coupon;
 
         public IGenericRepository<Category> Category
         {
@@ -116,6 +117,18 @@ namespace Infrastructure.Data
                     _MenuItemFoodType = new GenericRepository<MenuItemFoodType>(_dbContext);
                 }
                 return _MenuItemFoodType;
+            }
+        }
+        
+        public IGenericRepository<Coupon> Coupon
+        {
+            get
+            {
+                if (_Coupon == null)
+                {
+                    _Coupon = new GenericRepository<Coupon>(_dbContext);
+                }
+                return _Coupon;
             }
         }
 

@@ -48,6 +48,21 @@ namespace FoodDelivery.Pages.Customer.Cart
                 OrderDetailsCart.OrderHeader.PhoneNumber = applicationUser.PhoneNumber;
                 OrderDetailsCart.OrderHeader.DeliveryTime = DateTime.Now;
                 OrderDetailsCart.OrderHeader.DeliveryDate = DateTime.Now;
+                var couponCode = HttpContext.Session.GetString("CouponCode");
+                if (!string.IsNullOrEmpty(couponCode))
+                {
+                    var coupon = unitOfWork.Coupon.Get(c => c.Code == couponCode);
+                    if (coupon != null)
+                    {
+                        double discountAmount = 0;
+                        discountAmount = Convert.ToDouble(coupon.DiscountAmount);
+                        
+                        OrderDetailsCart.OrderHeader.CouponCode = couponCode;
+                        OrderDetailsCart.OrderHeader.DiscountAmount = discountAmount;
+                        OrderDetailsCart.OrderHeader.OrderTotal -= discountAmount;
+                    }
+                }
+
 
             }
         }
@@ -111,6 +126,14 @@ namespace FoodDelivery.Pages.Customer.Cart
                     else
                     {
                         OrderDetailsCart.OrderHeader.PaymentStatus = SD.PaymentStatusRejected;
+                    }
+                    var couponCode = HttpContext.Session.GetString("CouponCode");
+                    if (!string.IsNullOrEmpty(couponCode))
+                    {
+                        var coupon = unitOfWork.Coupon.Get(c => c.Code == couponCode);
+                        coupon.MaxUses--;
+                        coupon.Uses++;
+                        unitOfWork.Coupon.Update(coupon);
                     }
                     unitOfWork.Commit();
                     return RedirectToPage("/Customer/Cart/OrderConfirmation",new { id=  OrderDetailsCart.OrderHeader.Id});
