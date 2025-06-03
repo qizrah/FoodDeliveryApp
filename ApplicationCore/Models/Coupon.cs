@@ -25,5 +25,13 @@ namespace ApplicationCore.Models
         public DateTime? ExpirationDate { get; set; }
 
         public DayOfWeek? ValidDayOfWeek { get; set; } // optional: limit to specific day
+
+        public string? ApplicationUserId { get; set; } // for user-specific coupons
+
+        public bool IsOneTimeUse { get; set; } = false; // default is false for general coupons
+
+        public bool IsActive { get; set; } = true; // default active
+
+        public bool IsUsed { get; set; } = false; // only true for one-time user coupons
     }
 }
